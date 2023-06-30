@@ -1,0 +1,110 @@
+<%- include('./reusable/admin_reusable') %>
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Admin Page</title>
+  <style>
+   /* Define styles for the content area */
+    .content {
+      margin-left: 250px; /* Adjust the margin to match the sidebar width */
+      padding: 20px;
+      transition: 0.5s;
+    }
+    .btn1{
+        background-color:#f6f0e6;
+        color: rgb(16, 16, 16);
+        padding: 10px;
+        font-size: 16px;
+        border: none;
+        border-radius: 25px;
+        width: 100px;
+        margin-left: 20%;
+        float: right;
+        width: 170px;
+    
+        }
+        .btn2{
+        background-color:#f6f0e6 ;
+
+        color: rgb(16, 16, 16);
+        padding: 10px;
+        font-size: 16px;
+        border: none;
+        border-radius: 25px;
+        width: 100px;
+        margin-left: 20%;
+        float: right;
+        width: 120px;
+    
+        }
+        table, th, td {
+  border: 1px solid black;
+  border-collapse: collapse;
+  column-width:auto;
+}
+input {
+    border: none;
+    background: transparent;
+}
+  </style>
+</head>
+<body> <!-- Content Area -->
+  <button type="submit" class='btn1' name=scheduleflights><b>Schedule flight</b></button><br><br><br><br><br>
+  <button type="submit" class='btn1' name=editform><b>Edit Form</b></button>
+  <div class="content" id="content">
+  
+
+    <center>
+      <h3>Upcoming Flights</h3>
+      
+        <table>
+          
+          <tr></tr>
+            
+            
+            <form>
+              <tr>
+                <th>Date</th>
+                <th>Time</th>
+                <th>Copiolt</th>
+                <th>Description</th>
+
+              </tr>
+
+
+              <td>
+                <input type="text" id="eid" name="eid" >
+              </td> 
+              
+              <td>
+                <input type="text" id="name" name="ename" >
+              </td> 
+
+              <td>
+                <input type="text" id="eid" name="eid" >
+              </td> 
+              
+              <td>
+                <input type="text" id="name" name="ename" >
+              </td> 
+             
+              <td>
+               
+                <button type="submit" class='btn2' name=editflight >Reschedule</button>
+               
+              </td><span>
+              <td>
+                <button type="submit" class='btn2' name=deleteflight >Delete</button>
+               
+              </td></span>
+          
+            
+            </form></tr>
+        
+            </table></center>
+     </center>
+
+
+  </div>
+</body>
+</html>

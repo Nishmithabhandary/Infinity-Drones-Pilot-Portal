@@ -1,0 +1,78 @@
+<%- include('./reusable/admin_reusable') %>
+
+<!DOCTYPE html>
+<html lang="en">
+  
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO"
+    crossorigin="anonymous">
+   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+
+    <title>Projects</title>
+    <style>
+        .form{
+            
+            background-color:  rgb(14, 154, 179) ;
+            width:500px;
+            height:600px;
+            font-size: 19px;
+
+        }
+        .input{
+            padding-top:50px;
+        }
+
+    </style>
+</head>
+  
+<body>
+    <center><h1>Update project</h1></center>
+    <hr><center>
+    <div class="form">
+        
+        <form action="/updatedoc" method="POST" enctype="multipart/form-data">
+            <div class="input">
+                <label for="id">ID</label>
+                <input type="text" id="id" name="id">
+            </div>
+            <div class><br><br>
+                <label for="name">Projectname  :</label>
+                <input type="text" id="name" placeholder="Name" value="" name="name" required>
+            </div><br>
+            
+            <div>
+                <label for="name">Members  :</label>
+                <input type="text" id="members" placeholder="members" 
+                       value="" name="members" required>
+            </div><br>
+            <div>
+                <label for="desc">Project Description  :</label>
+                <textarea id="desc" name="desc" value="" 
+                          placeholder="Description" required>
+                </textarea>
+            </div><br>
+            <div>
+                <label for="image">Upload Image</label>
+                <input type="file" id="image" 
+                       name="image" value="" required>
+            </div><br>
+            <div>
+                <button type="submit" >Update</button>
+                
+            </div><br>
+            
+        </form>
+
+        
+            
+    </div>
+  
+    <hr>
+</center>
+  
+    
+</body>
+  
+</html>

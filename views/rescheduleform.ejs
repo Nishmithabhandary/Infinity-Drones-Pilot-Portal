@@ -1,0 +1,132 @@
+<%- include('./reusable/admin_reusable') %>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        
+    body {
+            background-color: #f9f3f3;
+        }
+        .topspace{
+          margin-top: 5%;
+        }
+    
+        
+        h1 {
+            text-align: center;
+        }
+
+        form {
+            margin: 20px auto;
+            max-width: 400px;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 4px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            margin-top:700;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        input,
+        select {
+            width: 100%;
+            padding: 5px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+
+        
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <center> <h2> Reschedule Flight</h2></center>
+      <center>  <form action="/edit_schedule" method="POST" style="border:1px solid #ccc">
+        
+
+            <input type="hidden" id="flight_id" name="flight_id" value=<%-schedule_details.flight_id%>>
+        
+           
+            <table>
+                <tr>
+                    <td>
+                        <h5><b>Pilot</b></h5>
+                    </td>
+                    <td>
+                        <input type="text" name="email"
+                            value=<%-schedule_details.email%>>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                       <h5><b>Date</b></h5>
+                    </td>
+                    <td>
+                        <input type="date" name="date"
+                            value=<%-schedule_details.date%>>
+                    </td>
+                    
+                </tr>
+                <tr>
+                    <td>
+                        <h5><b>Time</b></h5>
+                    </td>
+                    <td>
+                        <input type="time"  name="time" value=<%-schedule_details.time%>>
+                    </td>
+                   
+                </tr>
+                <tr>
+                    <td>
+                        <h5><b>Description</b></h5>
+                    </td>
+                    <td> <input type="text"  name="description"
+                            value=<%-schedule_details.description%> >
+                    </td>
+                   
+                </tr>
+                <tr>
+                    <td>
+                        <h5><b>Copilot</b></h5>
+                    </td>
+                    <td> <input type="text"  name="copilot"
+                            value=<%-schedule_details.copilot%> >
+                    </td>
+                    
+                </tr>
+                <tr>
+                    <td>
+                        <h5><b>Called/Not</b></h5>
+                    </td>
+                    <td> <input type="text"  name="called"
+                            value=<%-schedule_details.called%> >
+                    </td>
+                   
+                </tr>
+                
+                
+               
+                <tr>
+                    
+                </tr>
+                
+            </table><br><br>
+            <center> <button type="submit" class="btn"ONCLICK="alert('Succesfully Rescheduled...')">submit</button></center>
+        </form></center>
+    </div>
+</body>
+</html>
+    
+
+    

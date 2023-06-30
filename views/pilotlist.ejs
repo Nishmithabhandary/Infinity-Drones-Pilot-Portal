@@ -1,0 +1,184 @@
+
+<%- include('./reusable/admin_reusable') %>
+
+<style>
+    .content {
+      margin-left: 250px; /* Adjust the margin to match the sidebar width */
+     
+    }
+        .btn {
+          background-color: black;
+          color: white;
+          padding: 16px;
+          font-size: 16px;
+          border: none;
+          border-radius: 25px;
+          width: 200px;
+          }
+          
+        body {
+            background-color: #f9f3f3;
+          font-family: Arial, Helvetica, sans-serif;
+        }
+         /*to adjust the page setup*/ 
+        .container .display {
+        padding: 16px;
+        height: 450px;
+        width: 80%;
+        }
+          
+        input[type=text]
+        {
+        width: 100%;
+        padding: 15px;
+        margin: 5px 0 22px 0;
+        display: inline-block;
+        border: none;
+        background: #f9f3f3;
+          }
+          
+          
+        input[type=text]:focus
+        {
+          background-color: #ddd;
+          outline: none;
+        }
+        
+        
+          
+                       
+        table {
+        font-family: arial, sans-serif;
+        border-collapse: collapse;
+        width: 100%;
+        border: 1px solid #1d1c1c;
+        }
+                      
+        
+        th {
+          width: 190px;
+          text-align: center;
+          padding: 5px;
+          }
+          td {
+          width: 190px;
+          text-align: center;
+          padding: 5px;
+          }
+                          
+        .btn1 {
+            background-color:#f6f0e6;
+        color: rgb(16, 16, 16);
+        padding: 10px;
+        font-size: 16px;
+        border: none;
+        border-radius: 25px;
+
+        width: 150px;}
+
+        
+        .btn{
+        background-color:#f6f0e6;
+        color: rgb(16, 16, 16);
+        padding: 10px;
+        font-size: 16px;
+        border: none;
+        border-radius: 25px;
+        width: 100px;
+        margin-left: 20%;
+        float: right;
+        width: 150px;}
+    
+                            
+        .btn_d {
+        background-color:black;
+        color: white;
+        padding: 10px;
+        font-size: 16px;
+        border: none;
+        border-radius: 25px;
+        width: 80px;
+        margin-left: 18%;
+        }
+        .btn_res {
+              background-color:black;
+              color: white;
+              padding: 12px;
+              font-size: 12px;
+              border: none;
+              border-radius: 15px;
+              width: 80px;
+            }
+        
+        .container {
+        margin-left: 15%;
+        }
+       
+        .d{
+          width: 300%;
+          }
+          #event{
+            display: none;
+          }
+          #flight_id,#mode,#date,#drone_id,#email_id,#duration,#result,#batteryid,#takeoffvoltage,#landingvoltage,#windspeed,#winddirection,#copilot{
+            padding: 15px;
+        margin: 5px 0 22px 0;
+        border: none;
+        background:none;
+        font-size: 15px;
+        width:100%;
+        text-align: center;
+
+          }
+          th{
+            font-size: 20px;
+            
+          }
+          table{
+            width: 100%;
+          }
+          .pilotlist{
+            font-weight: bold;
+            font-size:x-large;
+            margin-left:700px;
+          }
+        </style>
+</style>
+<br><br><br>
+<a class="btn btn-secondary" href="/insertpilot" ><i class="fa fa-plus"></i><b>  Insert New</b> </a>
+<center><div class='pilotlist'><h1><B>PILOTS</B></h1></div></center>
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css"> 
+<!-- <ul><li><h3><a class="btn btn-secondary" href="/Insertproject"><i class="fa fa-plus"></i> CREATE NEW</a></h3></li>
+    <!-- <li><h3><a class="btn btn-secondary" href="/updatedoc"><i class="fa fa-pencil"></i> UPDATE</a></h3></li>
+    <li><h3><a class="btn btn-secondary" href="/delete"><i class="fa fa-trash fa-lg"></i> DELETE</a></h3></li> -->
+</ul> -->
+
+
+
+
+    <div class="content">
+        <% items.forEach(function(image) { %>
+        
+                <div>
+                <img src="data:image/<%=image.img.contentType%>;base64,
+                     <%=image.img.data.toString('base64')%>">
+                
+                    <h1><b><%=image.name %></b> </h1>
+                   
+                    <h4>Email_ID: <%=image.email_id%></h4>
+
+                    <h4>Mobile_Number: <%=image.mobile_no%></h4>
+
+                    <h4>DOB: <%=image.dob%></h4>
+
+                    <h4>Type of drone experience: <%=image.type_of_drone_experience%></h4>
+
+                    <h4>Honors and Achievement:<%=image.honors_and_achievements%></h4><br><br><br>
+                </div>
+                
+           
+       
+        <% }) %>
+        
+
+    </div>

@@ -1,0 +1,250 @@
+<%- include('./reusable/admin_reusable') %>
+
+
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+      <meta charset="UTF-8">
+      <meta http-equiv="X-UA-Compatible" content="IE=edge">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>Document</title>
+      <head>
+
+        <style>
+        .btn {
+          background-color: black;
+          color: white;
+          padding: 16px;
+          font-size: 16px;
+          border: none;
+          border-radius: 25px;
+          width: 200px;
+          }
+          
+        body {
+            background-color: #f9f3f3;
+          font-family: Arial, Helvetica, sans-serif;
+        }
+         /*to adjust the page setup*/ 
+        .container {
+        padding: 16px;
+        height: 450px;
+        width: 80%;
+        }
+          
+        input[type=text]
+        {
+        width: 100%;
+        padding: 15px;
+        margin: 5px 0 22px 0;
+        display: inline-block;
+        border: none;
+        background: #f9f3f3;
+          }
+          
+          
+        input[type=text]:focus
+        {
+          background-color: #ddd;
+          outline: none;
+        }
+        
+        
+          
+                       
+        table {
+        font-family: arial, sans-serif;
+        border-collapse: collapse;
+        width: 100%;
+        border: 1px solid #1d1c1c;
+        }
+                      
+        
+        th {
+          width: 190px;
+          text-align: center;
+          padding: 5px;
+          }
+          td {
+          width: 190px;
+          text-align: center;
+          padding: 5px;
+          }
+                          
+        .btn1 {
+            background-color:#f6f0e6;
+        color: rgb(16, 16, 16);
+        padding: 10px;
+        font-size: 16px;
+        border: none;
+        border-radius: 25px;
+
+        width: 150px;}
+
+        
+        .btn{
+        background-color:#f6f0e6;
+        color: rgb(16, 16, 16);
+        padding: 10px;
+        font-size: 16px;
+        border: none;
+        border-radius: 25px;
+        width: 100px;
+        margin-left: 20%;
+        float: right;
+        width: 150px;}
+    
+                            
+        .btn_d {
+        background-color:black;
+        color: white;
+        padding: 10px;
+        font-size: 16px;
+        border: none;
+        border-radius: 25px;
+        width: 80px;
+        margin-left: 18%;
+        }
+        .btn_res {
+              background-color:black;
+              color: white;
+              padding: 12px;
+              font-size: 12px;
+              border: none;
+              border-radius: 15px;
+              width: 80px;
+            }
+        
+        .container {
+        margin-left: 15%;
+        }
+       
+        .d{
+          width: 300%;
+          }
+          #event{
+            display: none;
+          }
+          #flight_id,#mode,#date,#drone_id,#email_id,#duration,#result,#batteryid,#takeoffvoltage,#landingvoltage,#windspeed,#winddirection,#copilot{
+            padding: 15px;
+        margin: 5px 0 22px 0;
+        border: none;
+        background:none;
+        font-size: 15px;
+        width:100%;
+        text-align: center;
+
+          }
+          th{
+            font-size: 20px;
+            
+          }
+          table{
+            width: 100%;
+          }
+        </style>
+        </head>
+        <body>
+          <div class=container>
+            <form action="/crashdetails" method="get">
+            
+
+
+            <button type="submit" class='btn' name=crashdetails><b>Crash Details</b></button><br><br><br><br><br>
+  <button type="submit" class='btn' name=editform><b>Edit Form</b></button>
+            <br><br>
+           </form>
+             <center>
+              <h1><b>SUCCESFUL FLIGHTS</b></h1><br><br>
+              
+                <table border="2">
+                    <td><tr>
+                        <th>Flight ID</th>
+                        <th>Mode</th>
+                        <th>Date</th>
+                        <th>Drone ID</th>
+                        <th>Email ID</th>
+                        <th>Duration</th>
+                        <th>Battery ID</th>
+                        <th>Take off voltage</th>
+                        <th>Landing voltage</th>
+                        <th>Wind Speed</th>
+                        <th>Wind direction</th>
+                        <th>Copilot</th>
+                        
+                  </tr></td>
+                    
+                  <% for(var i=0;i<flight.length;i++){ %>
+                  <tr></tr>
+                    <form action="/all_succesfulflightdetails" method="POST">
+                    
+                        
+                      <td>
+                        <input type="text" id="flight_id" name="flight_id" value=<%- flight[i].flight_id %>>
+                      </td> 
+                      
+                      <td>
+                        <input type="text" id="mode" name="mode" value=<%- flight[i].mode %>>
+                      </td> 
+                     
+
+                      <td>
+                        <%-flight[i].date %>
+                      </td>
+                      
+                      <td>
+                        <input type="text" id="drone_id" name="drone_id" value=<%- flight[i].drone_id %>>
+                      </td> 
+
+                      <td>
+                        <input type="text" id="emailid" name="description" value=<%- flight[i].emailid%>>
+                      </td> 
+                      
+                      <td>
+                        <input type="text" id="duration" name="duration" value=<%- flight[i].duration%>>
+                      </td> 
+                      
+                    
+                      <td>
+                        <input type="text" id="batteryid" name="batteryid" value=<%- flight[i].batteryid%>>
+                      </td> 
+                    
+                      <td>
+                        <input type="text" id="takeoffvoltage" name="takeoffvoltage" value=<%- flight[i].takeoffvoltage%>>
+                      </td> 
+                      <td>
+                        <input type="text" id="landingvoltage" name="landingvoltage" value=<%- flight[i].landingvoltage%>>
+                      </td> 
+                      <td>
+                        <input type="text" id="windspeed" name="windspeed" value=<%- flight[i].windspeed%>>
+                      </td> 
+                      <td>
+                        <input type="text" id="winddirection" name="winddirection" value=<%- flight[i].winddirection%>>
+                      </td> 
+                      <td>
+                        <input type="text" id="copilot" name="copilot" value=<%- flight[i].copilot%>>
+                      </td> 
+                    
+                    
+                    
+                    
+                      <td>
+                        <button type="submit" class='btn1' name=editsuccesfulflightdetails value=<%- flight[i].flight_id %>><b>Edit</b></button>
+                       
+                      </td>
+                      <td>
+                        <button type="submit" class='btn1' name=deletessuccesfulflightdetails ONCLICK="alert('Succesfully Deleted the flight details..')" value=<%- flight[i].flight_id %>><b>Delete</b></button>
+                       
+                      </td>
+
+                      
+                    
+                    
+                    </form></tr><%}%>
+                    </table></center>
+             </center>
+
+            
+              
+ </body>
+    </html>

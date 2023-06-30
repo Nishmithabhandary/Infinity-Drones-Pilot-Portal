@@ -1,0 +1,91 @@
+<%- include('./reusable/admin_reusable') %>
+
+<%- include('./reusable/admin_sidenav'); %>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Project Display</title>
+    <!-- <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous"> -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO"
+    crossorigin="anonymous">
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+</head>
+<style>
+  body{
+    background-color: rgb(14, 154, 179) ;
+    margin-left: 199px;
+  }
+  .header{
+    background-color: rgb(31, 30, 30);
+    color:white;
+    font-weight: bold
+
+  }
+  .table.table table-striped{
+    background:white 
+    
+  }
+  .button{
+    margin-left:5%;
+  }
+  .col{
+    width:2%;
+  }
+  h1,h3{
+    color: black;
+  }
+</style>
+<body>
+  <section class="delete">
+    <h3>Delete Data</h3>
+    <form action="/delete" method="post">
+        <div class="input">
+            <label for="email">Email_ID</label>
+            <input type="email" id="id" name="id" value="" placeholder="Enter Email">
+        </div>
+        <div class="button"><button type="submit "onclick="return confirm('are you sure');">DELETE</button></div>
+        
+    </form>
+</section>
+    
+    <table class="table table-bordered table table-striped">
+        <thead class="header">
+            <center><h1>PILOTS</h1></center>
+          <tr >
+            <th scope="col">Name</th>
+            <th scope="col">Email_ID</th>
+            
+            <th scope="col">Mobile_Number</th>
+            <th scope="col">DOB</th>
+            <th scope="col">Type of drone experience</th>
+            <th scope="col">Honors and Achievements</th>
+            
+            <th scope="col">Image</th>
+
+           
+          </tr>
+        </thead>
+        <tbody >
+        <%items.forEach(image => {%>
+            <tr>
+             
+              <td ><%= image._id %></td>
+                <td><%= image.name %></td>
+                
+                <td ><%= image.email_id%></td>
+                <td ><%= image.mobile_number%></td>
+                <td ><%= image.dob%></td>
+                <td><%= image.type_of_drone_experience%></td>
+                <td><%= image.honors_and_achievements%></td>
+                <td><img src="data:image/<%=image.img.contentType%>;base64,
+                    <%=image.img.data.toString('base64')%>"></td>
+                   
+                      
+            </tr>
+        <%})%>
+        </tbody>
+      </table>
+</body>
+</html>

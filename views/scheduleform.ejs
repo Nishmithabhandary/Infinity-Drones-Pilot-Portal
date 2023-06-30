@@ -1,0 +1,87 @@
+<%- include('./reusable/admin_reusable') %>
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scheduling Form </title>
+   <!-- <link rel="stylesheet" href="style.css">-->
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.1/css/all.min.css" />
+    <style>
+    body {
+            background-color: #f9f3f3;
+        }
+        .topspace{
+          margin-top: 5%;
+        }
+    
+        
+        h1 {
+            text-align: center;
+        }
+
+        form {
+            margin: 20px auto;
+            max-width: 400px;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 4px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            margin-top:700;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        input,
+        select {
+            width: 100%;
+            padding: 5px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+
+        
+
+     
+</style>
+  </head>
+  <body>
+    <center><h1>FLIGHT SCHEDULE </h1></center>
+    <form method="post" action="/newflight">
+
+    
+      <div class="email">
+        <label for="email">PILOT</label>
+        <input type="email" name='email' id="email" placeholder="Enter Email ID">
+      </div>
+      <div class="date">
+        <label for="date">Date</label>
+        <input type="date" name='date' id="date" placeholder="Select date">
+      </div>
+      <div class="time">
+        <label for="time">Time</label>
+        <input type="text" name='time' id="time" placeholder="Enter the time">
+      </div>
+      <div class="description">
+        <label for="description">Description</label>
+        <input type="text" name='description' id="description" placeholder="Enter flight description">
+      </div>
+      
+      <div class="copilot">
+        <label for="copilot">Copilot</label>
+        <input type="text" name='copilot' id="copilot" placeholder="Enter copilot's name">
+      </div>
+      <div class="submit-btn">
+       <B><input type="submit" ONCLICK="alert('Flight is scheduled succesfully..')"value="Schedule Flight",></B> 
+      </div>
+    </form>
+
+  </body>
+</html>

@@ -8,6 +8,7 @@ const cookieParser = require('cookie-parser')
 const router=express.Router();
 const multer = require('multer');
 const controller=require("../Controller/controller");
+const flightdetail=require("../Controller/admin_dashboard_controller");
 router.use(bodyParser.urlencoded({extended:true}))
 router.use(bodyParser.json())
 router.use(cookieParser())
@@ -19,12 +20,16 @@ router.get('/signup',async(req,res)=>{
 router.get('/upload',async(req,res)=>{
     res.render("image")
 })
+router.get('/try',async(req,res)=>{
+    res.render("try")
+})
+router.get('/result',async(req,res)=>{
+    res.render("result")
+})
 router.get('/profile',async(req,res)=>{
     res.render("profile");
 })
-router.get('/admin',checkToken,async(req,res)=>{
-    res.render("admin")
-})
+
 router.get('/logout',(req,res)=>{
     const authcookie=req.cookies.authcookie
     const email=req.cookies.email
@@ -188,8 +193,48 @@ function checkToken(req,res,next){
         }
     })
 }
+router.get('/dashboard',checkToken,async(req,res)=>{
+    
+
+    try{
+        console.log("Working");
+        const { totalDuration,results,crashDetails}=await controller.dashboard(req,res);
+        console.log(crashDetails);
+        console.log(totalDuration);
+        res.render('dashboard',{totalDuration,results,query4:crashDetails})
+    }
+    catch(err)
+    {
+        console.log(err);
+        res.render('dashboard',{totalDuration:0,results:[],query4:[]});
+    }
+    
+})
+
+/*admin realted*/
 
 
+router.get('/admin',async(req,res)=>{
+    {
+    var a = await flightdetail.totalsuccesfulflights(req, res);
+    
+    var b= await flightdetail.totalcrashes(req, res);
+    console.log("total number of succesful flights and crashes....");
+    console.log(a);
+    console.log(b);
+    console.log("total number of succesful flights and crashes....")
+    }
+    res.render('admin', { layout: false,  successful:a ,crashes:b});
+})
+router.get('/pilotprofile',async(req,res)=>{
+    res.render("pilotprofile")
+})
+router.get('/flightdetails',async(req,res)=>{
+    res.render("flightdetails")
+})
+router.get('/scheduleflights',async(req,res)=>{
+    res.render("scheduleflights")
+})
 
 
 module.exports=router;

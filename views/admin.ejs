@@ -1,92 +1,52 @@
+<%- include('./reusable/admin_reusable') %>
 <!DOCTYPE html>
 <html>
 <head>
   <title>Admin Page</title>
   <style>
-    /* Define styles for the side navigation bar */
-    .sidenav {
-      height: 100%;
-      width: 250px;
-      position: fixed;
-      z-index: 1;
-      top: 0;
-      left: 0;
-      background-color: #f1f1f1;
-      overflow-x: hidden;
-      transition: 0.5s;
-      padding-top: 60px;
-    }
-    
-    /* Define styles for the navigation links */
-    .sidenav a {
-      padding: 8px 8px 8px 32px;
-      text-decoration: none;
-      font-size: 20px;
-      color: #818181;
-      display: block;
-      transition: 0.3s;
-    }
-    
-    /* Add a background color to the active/current link */
-    .sidenav a.active {
-      background-color: #4CAF50;
-      color: white;
-    }
-    
-    /* Style the navigation links on hover */
-    .sidenav a:hover {
-      color: #3eeb13;
-    }
-    
-    /* Define styles for the hamburger menu */
-    .hamburger {
-      display: none; /* Hide the hamburger menu by default */
-    }
-    
-    /* Define styles for the content area */
+    body{background-color: #f9f3f3;}
+   /* Define styles for the content area */
     .content {
       margin-left: 250px; /* Adjust the margin to match the sidebar width */
       padding: 20px;
       transition: 0.5s;
+      text-align: right;
     }
+    .success{
+      margin-left: 250px;
+      font-weight: bold;
+    }
+    input[type=number]
+        {
+        margin-left: 50px;
+        display: inline-block;
+        border: none;
+        background: #f9f3f3;
+        font-weight: bold;
+        font-size: 35px;
+        
+          }
+          
+          
+        
   </style>
-  <script>
-    // Toggle the sidebar
-    function toggleSidebar() {
-      const sidebar = document.getElementById('sidebar');
-      const content = document.getElementById('content');
-      const hamburger = document.getElementById('hamburger');
-      
-      if (sidebar.style.width === '250px') {
-        sidebar.style.width = '0';
-        content.style.marginLeft = '70px';
-        hamburger.classList.remove('active');
-      } else {
-        sidebar.style.width = '250px';
-        content.style.marginLeft = '320px';
-        hamburger.classList.add('active');
-      }
-    }
-  </script>
 </head>
-<body>
-  <!-- Hamburger Menu -->
-  <div class="hamburger" id="hamburger" onclick="toggleSidebar()">
-    <div class="bar"></div>
-    <div class="bar"></div>
-    <div class="bar"></div>
-  </div>
-  
-  <!-- Side Navigation Bar -->
-  <div class="sidenav" id="sidebar">
-    <a href="#">Dashboard</a>
-    <a href="#">Add Details</a>
-  </div>
-  
-  <!-- Content Area -->
+<body> <!-- Content Area -->
   <div class="content" id="content">
-    <h1>Welcome to the Website!</h1>
-    <p>This is the content area of the website.</p>
+    <h1>Welcome to the Admin Panel</h1>
   </div>
+<br><br><br>
+    <div class="success">
+      <label for="successful"><h3>Total Succesful flights of the day:</h3></label>
+      <input type="number" id="successful" name="successful" style="color:green;" value="<%-successful%>" readonly>
+  
+
+
+
+    <label for="crashes"><h3>Total crashes of the day:</h3></label>
+    <input type="number" id="crashes" name="crashes" style="color:red;" value="<%-crashes%>" readonly>
+</div>
+
+  
 </body>
 </html>
