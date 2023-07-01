@@ -215,7 +215,7 @@ const { Pool } = require('pg');
 const pool = new Pool({ connectionString: 'postgres://qfxwijux:sGtZVyXqp9PIG1EaLpZNdZX9qO1RceyE@mouse.db.elephantsql.com/qfxwijux' });
 
 
-app.use(express.static('public')); // Serve static files from the 'public' directory
+app.use(express.static('views')); // Serve static files from the 'public' directory
 
 app.get('/data', async (req, res) => {
   const client = await pool.connect();
@@ -236,8 +236,14 @@ app.get('/data', async (req, res) => {
 });
 app.get('/data',(req, res)=>{
     console.log('hi');
-    res.render("../index.html",{ layout: false})
+    res.render("./public/index.html",{ layout: false})
   
+  });
+  app.get('/data', (req, res) => {
+    // Generate or retrieve your data for the bar chart here
+  
+    // Pass the data to the index.html template
+    res.sendFile(__dirname + '/public/index.html');
   });
 
 
