@@ -123,52 +123,55 @@ module.exports.signup=async(req,res)=>{
 //     }
 // }
 
-module.exports.logincheck=async(req,res)=>{
-    try{
-        console.log("Checking Login Credentials");
-    let {emailid,password}=req.body;
-    console.log({
-        emailid,password
-    })
-    pool.query(`SELECT * FROM signup where emailid =$1 AND password =$2`,[emailid,password],(err,results)=>{
-        console.log(results.rows);
-        if(err){
-            throw err;
-        }
-        
-        else{
-            if(results.rows.length>0){
+module.exports.logincheck = async (req, res) => {
+    try {
+      console.log("Checking Login Credentials");
+      let { emailid, password } = req.body;
+      console.log({
+        emailid,
+        password,
+      });
+  
+      if (emailid === "infinitydronesadmin@gmail.com" && password === "Admin@2023@infinitydrones") {
+        console.log("Admin login successful");
+        const token = jwt.sign({ emailid }, 'sfhsfhsfhfsiofhiosghiogjiogjdoghfioghioghfodiofghdfiogh');
+  
+        console.log(token);
+        res.cookie('authcookie', token, { maxAge: 120 * 60 * 1000, httpOnly: true });
+        res.cookie('email', emailid);
+        res.redirect('/admin');
+      } else {
+        pool.query(
+          'SELECT * FROM signup WHERE emailid = $1 AND password = $2',
+          [emailid, password],
+          (err, results) => {
+            console.log(results.rows);
+            if (err) {
+              throw err;
+            } else {
+              if (results.rows.length > 0) {
                 console.log("Successful");
-               
-                const userEmail=results.rows[0].emailid;
-                console.log(userEmail)
-                // console.log(userEmail+"This is the current user");
-
-                const token=jwt.sign({emailid},'sfhsfhsfhfsiofhiosghiogjiogjdoghfioghioghfodiofghdfiogh');
+                const userEmail = results.rows[0].emailid;
+                console.log(userEmail);
+                const token = jwt.sign({ emailid }, 'sfhsfhsfhfsiofhiosghiogjiogjdoghfioghioghfodiofghdfiogh');
                 
-
-                // res.json({token:token});
-                console.log(token)
-                res.cookie('authcookie',token,{maxAge:120*60*1000,httpOnly:true})
-                res.cookie('email',userEmail);
-                // res,cookie('email')
-                // res.redirect('/flying',{email:userEmail})   The res.redirect() method does not accept additional data to be passed as an object
-                res.redirect('/dashboard');
+                console.log(token);
+                res.cookie('authcookie', token, { maxAge: 120 * 60 * 1000, httpOnly: true });
+                res.cookie('email', userEmail);
+                res.redirect('/member_dashboard');
+              } else {
+                console.log("Wrong Email password");
+                res.render('login');
+              }
             }
-            else{
-                console.log("Wrong Email password")
-                res.render('login')
-            }
-        }
-    })
+          }
+        );
+      }
+    } catch (err) {
+      console.log(err);
     }
-    catch(err)
-    {
-        console.log(err);
-    }
-}
-
-
+  };
+  
 module.exports.flightdata=async(req,res)=>{
     try{
         const k=await pool.query("select * from flight_description");
@@ -202,7 +205,7 @@ module.exports.flying=async(req,res)=>{
         var result=true;
         var y=await pool.query(`INSERT INTO flight_description (flight_id,emailid,copilot,duration,date,mode,batteryid,takeoffvoltage,landingvoltage,windspeed,winddirection,drone_id,result) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13)`,[flight_id,emailid,copilot,duration,date,mode,batteryid,takeoffvoltage,landingvoltage,windspeed,winddirection,drone_id,result]);
         console.log(y);
-        res.render('result')
+        res.redirect('/pilotflightdetails')
         }
         else if(answer==='no'){
             var{flight_id,emailid,copilot,duration,date,mode,batteryid,takeoffvoltage,landingvoltage,windspeed,winddirection,drone_id,result}=req.body
@@ -279,13 +282,13 @@ module.exports.droneslistdata=async(req,res)=>{
 module.exports.crashdetails=async(req,res)=>{
     try{
         console.log("Crash Details Submission");
-        let {drone_name,emailid,pilot_id,flight_id,damaged_parts,reason}=req.body;
+        let {drone_name,emailid,pilot_id,flight_id,reason}=req.body;
         console.log({
-            drone_name,emailid,pilot_id,flight_id,damaged_parts,reason
+            drone_name,emailid,pilot_id,flight_id,reason
         })
-        pool.query('INSERT INTO crash (drone_name,emailid,flight_id,damaged_parts,reason)values($1,$2,$3,$4,$5)',[drone_name,emailid,flight_id,damaged_parts,reason]);
+        pool.query('INSERT INTO crash (drone_name,emailid,flight_id,reason)values($1,$2,$3,$4)',[drone_name,emailid,flight_id,reason]);
         console.log("Submission Successful");
-        res.render('result');
+        res.redirect('/pilotcrashdetails');
     }
     catch(err){
         console.log(err)
@@ -321,60 +324,118 @@ module.exports.viewdetails=async(req,res)=>{
         console.log(err);
     }
 }
+module.exports.dashboard = async (req, res) => {
+    try {
+      const email = req.cookies.email;
+      console.log(email);
+  
+      // Get all drone IDs and names
+      const droneQuery = await pool.query(`SELECT drone_id, drone_name FROM drones`);
+      const drones = droneQuery.rows;
+  
+      // Get flight durations for each drone and calculate the total duration
+      const results = [];
+      let totalDuration = 0;
+  
+      for (const drone of drones) {
+        const planeId = drone.drone_id;
+        const droneName = drone.drone_name;
+  
+        const durationQuery = await pool.query(
+          `SELECT duration FROM flight_description WHERE drone_id = $1 AND emailid = $2`,
+          [planeId, email]
+        );
 
-module.exports.dashboard=async(req,res)=>{
-    try{
-        const email=req.cookies.email
-        console.log(email);
-        const query1=await pool.query(`SELECT duration FROM flight_description WHERE emailid=$1`,[email]);
-        console.log(query1);
-        const query5=await pool.query(`SELECT drone_id FROM flight_description WHERE emailid=$1`,[email]);
-        console.log("t")
-        const droneName=[];
-        for(let i=0;i<query5.rows.length;i++){
-            const dur=query5.rows[i]
-            const res=await pool.query(`SELECT drone_name FROM drones WHERE drone_id=$1`,[dur.drone_id]);
-            droneName.push(res.rows[0].drone_name);
-            console.log(dur)
-            
-        }
-        console.log("here");
-        console.log(droneName)
-        
-        const query2=await pool.query(`SELECT drone_id FROM drones`);
-        console.log(query2);
-        console.log("hi")
-        console.log(query2.rows.length)
-        console.log(query2.rows[0])
-        const results=[]
-        
-        let totalDuration=0;
-        for(let i=0;i<query2.rows.length;i++){
-        const dur=query2.rows[i]
-        console.log(dur)
-        const query3=await pool.query(`SELECT duration FROM flight_description WHERE drone_id=$1`,[dur.drone_id]);
-        // const durations=query3.rows.map(row=>row.duration);
-        const durations = query3.rows.map(row => parseInt(row.duration, 10));
 
-        const planeDuration=durations.reduce((acc,curr)=>acc+curr,0);
-        totalDuration+=planeDuration
-            results.push({
-                planeId:dur,
-                duration:query3.rows.map(row=>row.duration),
-                droneName:droneName[i]
-            })
-        }
-        console.log(results)
-        console.log(totalDuration);
-        const query4=await pool.query(`SELECT * FROM flight_description WHERE emailid=$1`,[email]);
+  
+        const durations = durationQuery.rows.map(row => parseInt(row.duration, 10));
+        const droneDuration = durations.reduce((acc, curr) => acc + curr, 0);
+  
+        results.push({
+          planeId,
+          droneName,
+          duration: droneDuration, // Modified: Use the sum of durations for the drone
+        });
+  
+        totalDuration += droneDuration;
+      }
+  
+      console.log(results);
+      console.log(totalDuration);
+        const query4=await pool.query(`SELECT
+        fd.flight_id,
+        fd.mode,
+        fd.date,
+        fd.drone_id,
+        fd.emailid,
+        fd.duration,
+        fd.result,
+        fd.batteryid,
+        fd.takeoffvoltage,
+        fd.landingvoltage,
+        fd.windspeed,
+        fd.winddirection,
+        d.drone_name
+      FROM
+        flight_description fd
+      JOIN
+        drones d ON d.drone_id = fd.drone_id
+      WHERE
+        fd.result = true
+        AND fd.emailid = '${email}';
+      `);
         console.log(query4)
         const crashDetails=query4.rows;
-        const droneId=crashDetails.drone_id;
+        const droneId=crashDetails[0].drone_id;
+        const crashdetails = await pool.query(`
+  SELECT
+    flight_description.drone_id,
+    drones.drone_name,
+    flight_description.flight_id,
+    flight_description.mode,
+    flight_description.date,
+    flight_description.duration,
+    flight_description.emailid,
+    flight_description.result,
+   
+  FROM
+    flight_description
+  JOIN
+    drones ON flight_description.drone_id = drones.drone_id
+  WHERE
+    flight_description.emailid = '${email}' AND
+    flight_description.result = false
+`);
+
+const items_cost=await pool.query('select * from cost_details');
+
+        console.log("me here")
+        console.log(crashdetails)
+        // const crashdetails1=await pool.query(`SELECT * FROM crash where emailid=$1`,[email]);
+        // var damagedParts="";
         console.log("H")
+        console.log("H")
+        console.log("h")
+        // crashdetails1.rows.forEach(row => {
+        //     damagedParts = row.damaged_parts;
+        //     console.log(damagedParts)
+        //     // Process each row's damaged_parts value
+        //   });
+        // console.log(damagedParts)
+        // const mergedCrashDetails = {
+        //     ...crashdetails,
+        //     rows: crashdetails.rows.map(row => ({ ...row })),
+        //     damagedParts: damagedParts
+        //   };
+        const crashdetailsrows=crashdetails.rows;
+        console.log("checking crash details.......................")
+        console.log(crashdetailsrows)
+        
+        // console.log("H")
         console.log(query4.drone_id);
         console.log(droneId)
-        
-        return {totalDuration,results,crashDetails};
+        console.log("here controller",crashdetailsrows)
+        return {totalDuration,results,crashDetails,crashdetailsrows};
         // let query3;
         // for(let i=0;i<query2.rows.length;i++)
         // {
@@ -389,6 +450,288 @@ module.exports.dashboard=async(req,res)=>{
     catch(err)
     {
         console.log(err);
-        return {totalDuration:0,results:[],query4:[]}
+        return {totalDuration:0,results:[],query4:[],crashdetails:[]}
     }
 }
+
+    
+// module.exports.costestimation = async (req, res) => {
+//     return new Promise((resolve, reject) => {
+//       const selectedParts = req.body.selectedParts;
+  
+//       const placeholders = selectedParts.map((_, i) => `$${i + 1}`);
+//       const query = `
+//         SELECT SUM(items_cost) AS total_cost
+//         FROM cost_details
+//         WHERE LOWER(items_name) IN (${placeholders})
+//       `;
+  
+//       pool.query(query, selectedParts.map(part => part.toLowerCase()), (err, result) => {
+//         if (err) {
+//           console.error('Error executing SQL Query:', err);
+//           reject(err);
+//           return;
+//         }
+  
+//         const totalPrice = result.rows[0].total_cost || 0;
+//         resolve(totalPrice);
+//       });
+//     });
+//   };
+  
+//   module.exports.insertdamagedparts=async(req,res)=>{
+//     try{
+//       console.log("newone............")
+//         const email=req.body;
+
+//         console.log(email);
+//         console.log("newone............")
+        
+//     }
+//     catch(err){
+//         console.log(err);
+//     }
+// }
+
+  /*  add the crash details to database*/
+  // module.exports.insertdamagedparts = async (req, res) => {
+    
+  //     const selectedParts = req.body.selectedParts;
+  //     const flight_id=req.body;
+  //     console.log(selectedParts)
+  //     console.log('insert_damaged_items_to_db')
+  //     console.log(flight_id)
+  
+  //     // const placeholders = selectedParts.map((_, i) => `$${i + 1}`);
+  //     // const query = `
+  //     //   SELECT SUM(items_cost) AS total_cost
+  //     //   FROM cost_details
+  //     //   WHERE LOWER(items_name) IN (${placeholders})
+  //     // `;
+  
+  //     // pool.query(query, selectedParts.map(part => part.toLowerCase()), (err, result) => {
+  //     //   if (err) {
+  //     //     console.error('Error executing SQL Query:', err);
+  //     //     reject(err);
+  //     //     return;
+  //     //   }
+  
+  //     //   const totalPrice = result.rows[0].total_cost || 0;
+  //     //   resolve(totalPrice);
+  //   //   });
+  //   ;
+  // };
+  
+// res.send(`Total cost is: ${totalPrice}`);
+
+// module.exports.insertdamagedparts = async (req, res) => {
+//   try {
+//     console.log("Crash item details submission");
+//     var { flightId, selectedItems } = req.body;
+//     console.log({
+//       flightId,
+//       selectedItems
+//     });
+
+//     for (var item of selectedItems) {
+//       await pool.query('INSERT INTO flight_crash_items (flight_id, items_name) VALUES ($1, $2)', [flightId, item]);
+//     }
+
+//     console.log("Submission Successful");
+//     res.redirect('/dashboard');
+//   } catch (err) {
+//     console.log(err);
+//   }
+// };
+
+module.exports.insertdamagedparts = async (req,res) => {
+  try {
+    console.log("Crash item details submission");
+    var { flightId, selectedItems } = req.body;
+    console.log({
+      flightId,
+      selectedItems
+    });
+
+    // Convert single item into an array
+    if (typeof selectedItems === 'string') {
+      selectedItems = [selectedItems];
+    }
+
+    for (var item of selectedItems) {
+      await pool.query('INSERT INTO flight_crash_items (flight_id, items_name) VALUES ($1, $2)', [flightId, item]);
+    }
+
+    console.log("Submission Successful");
+    res.redirect('/pilotcrashdetails');
+  } catch (err) {
+    console.log(err);
+  }
+};
+
+
+//succesful flights
+module.exports.flightdetails = async (req, res) => {
+  try {
+    const email = req.cookies.email;
+    console.log(email);
+
+    // Get all drone IDs and names
+    const droneQuery = await pool.query(`SELECT drone_id, drone_name FROM drones`);
+    const drones = droneQuery.rows;
+
+    // Get flight durations for each drone and calculate the total duration
+    const results = [];
+    let totalDuration = 0;
+
+    for (const drone of drones) {
+      const planeId = drone.drone_id;
+      const droneName = drone.drone_name;
+
+      const durationQuery = await pool.query(
+        `SELECT duration FROM flight_description WHERE drone_id = $1 AND emailid = $2`,
+        [planeId, email]
+      );
+      
+      const durations = durationQuery.rows.map(row => parseInt(row.duration, 10));
+      const droneDuration = durations.reduce((acc, curr) => acc + curr, 0);
+
+      results.push({
+        planeId,
+        droneName,
+        duration: droneDuration, // Modified: Use the sum of durations for the drone
+      });
+
+      totalDuration += droneDuration;
+    }
+
+    console.log(results);
+    console.log(totalDuration);
+
+    const trueCountQuery = await pool.query(
+      "SELECT COUNT(flight_id) AS trueCount FROM flight_description WHERE result='true' AND emailid=$1",
+      [email]
+    );
+    const falseCountQuery = await pool.query(
+      "SELECT COUNT(flight_id) AS falseCount FROM flight_description WHERE result='false' AND emailid=$1",
+      [email]
+    );
+
+    const trueCount = trueCountQuery.rows[0].truecount;
+    const falseCount = falseCountQuery.rows[0].falsecount;
+     
+    const itemcostQuery = await pool.query('SELECT cost_details.items_name as label, SUM(cost_details.items_cost) AS value FROM cost_details AS cost_details JOIN crash AS crash ON cost_details.items_name = crash.damaged_parts WHERE crash.emailid =$1 GROUP BY cost_details.items_name', [email]);
+    const itemcost = itemcostQuery.rows.map(item => ({
+      label: item.label,
+      value: parseFloat(item.value)
+    }));
+    
+    console.log(itemcost);
+
+    const query4 = await pool.query(`
+      SELECT
+        fd.flight_id,
+        fd.mode,
+        fd.date,
+        fd.drone_id,
+        fd.emailid,
+        fd.duration,
+        fd.result,
+        fd.batteryid,
+        fd.takeoffvoltage,
+        fd.landingvoltage,
+        fd.windspeed,
+        fd.winddirection,
+        fd.copilot,
+        d.drone_name
+      
+      FROM
+        flight_description fd
+      JOIN
+        drones d ON d.drone_id = fd.drone_id
+      WHERE
+        fd.result = true
+        AND fd.emailid = $1;
+    `, [email]);
+
+    console.log(query4);
+    const crashDetails = query4.rows;
+    const droneId = crashDetails[0].drone_id;
+
+    const crashdetails = await pool.query(`
+      	
+	
+	
+	SELECT
+  fd.drone_id,
+  d.drone_name,
+  fd.flight_id,
+  fd.mode,
+  fd.date,
+  fd.duration,
+  fd.emailid,
+  fd.result,
+  fd.copilot,
+  c.total_cost
+FROM
+  flight_description fd
+JOIN
+  drones d ON fd.drone_id = d.drone_id
+LEFT JOIN
+  (
+      SELECT
+          SUM(c.items_cost) AS total_cost,
+          f.flight_id
+      FROM
+          cost_details c
+      JOIN
+          flight_crash_items f ON f.items_name = c.items_name
+      GROUP BY
+          f.flight_id
+  ) AS c ON c.flight_id = fd.flight_id
+WHERE
+  fd.emailid = $1
+  AND fd.result = false;
+    `, [email]);
+
+    const items_name=(await pool.query('select items_name from cost_details')).rows;
+
+    const crashdetailsrows = crashdetails.rows;
+    console.log("hello this is crash details...........")
+    console.log(crashdetailsrows);
+    console.log("hello this is crash details...........")
+    const flighttime = await pool.query(
+      'SELECT drone_name AS label, SUM(duration) AS count FROM flight_description, drones WHERE flight_description.drone_id = drones.drone_id AND emailid = $1 GROUP BY drones.drone_name',
+      [email]
+    );
+    console.log("items_name in controller........")
+    console.log(items_name)
+    console.log("items_name in controller........")
+    
+
+    return { totalDuration, results, crashDetails, crashdetailsrows, trueCount, falseCount, itemcost,flighttime ,items_name};
+  } catch (err) {
+    console.log('In controller catch..............')
+    console.log(err);
+    return { totalDuration: 0, results: [], query4: [], crashdetails: [], trueCount: 0, falseCount: 0, itemcost: [] ,flighttime:[]};
+  }
+};
+
+
+module.exports.damageditemscostgraph= async (req, res) => {
+  try {
+    const email = req.cookies.email;
+   console.log("hello welcome..................")
+   var itemcost = await pool.query('SELECT cost_details.items_name as label, SUM(cost_details.items_cost) AS value FROM cost_details AS cost_details JOIN crash AS crash ON cost_details.items_name = crash.damaged_parts WHERE crash.emailid =$1 GROUP BY cost_details.items_name',[email]);
+    return itemcost.rows;
+    
+  }
+  catch (e) {
+    console.error(e)
+    res.json({
+      errors: 'Invalid'
+    });
+
+  }
+}
+

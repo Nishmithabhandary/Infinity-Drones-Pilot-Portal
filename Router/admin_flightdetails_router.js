@@ -2,7 +2,20 @@ const express = require("express");
 const flightdetails = require("../Controller/admin_flightdetails_controller");
 const router = express.Router();
 
+// const app=express();
+const bodyParser = require("body-parser");
+const cookieParser = require('cookie-parser')
 
+const multer = require('multer');
+
+router.use(bodyParser.urlencoded({extended:true}))
+router.use(bodyParser.json())
+router.use(cookieParser())
+
+//get flight details
+router.get('/flightdetails',async(req,res)=>{
+    res.render("flightdetails")
+})
 
 //get list of flight details already in db
 router.get("/newflightdetails", async (req, res) => {
@@ -31,21 +44,32 @@ router.get("/crashdetails", async (req, res) => {
     console.log(flightdetails)
    {    
        console.log("hello this to check d..........")
-       var d = await flightdetails.crashdetails(req, res);
-       console.log(d+"this is d..................");
-       var n = d.length;
-       naa=JSON.stringify(d);
+       var{ crash_details,items_name}= await flightdetails.crashdetails(req, res);
+       console.log(crash_details+"this is d..................");
+       console.log("admin_items_name_in_controller");
+       console.log(items_name)
+       console.log(crash_details)
+       console.log("admin_items_name_in_controller");
+       var n = crash_details.length;
+       naa=JSON.stringify(crash_details);
        console.log(n)
        console.log("check  check check..........................")
        console.log(naa)
-       console.log("check check......................")
-
-       
-       res.render('crashdetails', { layout: false,  flight:d, detail: logindetails, flight_id: " " });
+       console.log("check check......................")  
+       res.render('crashdetails', { layout: false,  flight:crash_details, detail: logindetails, flight_id: " " ,items_name:items_name});
        
     }
     
  });
+ router.get("/all_succesfulflightdetails",async(req, res) => {
+    console.log("hello this to check d..........")
+      var d = await flightdetails.succesfulflightdetails(req, res);
+      console.log(d+"this is d..................");
+      var n = d.length;
+      console.log(n)
+      res.render('flightdetails', { layout: false,  flight:d, flight_id: " " });
+      
+ })
 
  /*delete succesful flight details*/
 router.post("/all_succesfulflightdetails", async (req, res) => {
@@ -117,12 +141,12 @@ router.post("/all_crashdetails", async (req, res) => {
         console.log(remove);
         console.log('checkingggggg--------')
       
-        var d = await flightdetails.crashdetails(req, res);
+        var{ crash_details,items_name}= await flightdetails.crashdetails(req, res);
         console.log(d+"this is d..................");
-        var n = d.length;
+        var n = crash_details.length;
         console.log(n)
         console.log("deleted succesfully...");
-        res.render('crashdetails', { layout: false,  flight:d, detail: logindetails, flight_id: " " });
+        res.render('crashdetails', { layout: false,  flight:crash_details, detail: logindetails, flight_id: " ",items_name });
      
  }
  else
@@ -149,10 +173,10 @@ router.post("/edit_crashdetails", async (req, res) => {
     console.log(Edit)
     console.log("Edited crash details successfully...")
     flight_id=req.body;
-    var b = await flightdetails.crashdetails(req, res);
+    var {crash_details,items_name}= await flightdetails.crashdetails(req, res);
     var a = await flightdetails.detailedcrashdetails(req, res);
     var d = await flightdetails.get_crashdetails(req, res);
-    res.render('crashdetails', { layout: false, flight:b,flight_id:req.body.flight_id })
+    res.render('crashdetails', { layout: false, flight:crash_details,flight_id:req.body.flight_id,items_name })
    })
  
 /*Edit succesful flight details*/
@@ -168,9 +192,52 @@ router.post("/edit_succesfulflightdetails", async (req, res) => {
     res.render('flightdetails', { layout: false, flight:a,flight_id:req.body.flight_id })
    })
    
+/*add flight details*/
+router.get('/add_successful_flight_details',async(req,res)=>{
+    
+    const data=await flightdetails.alldroneslistdata(req,res);
+    console.log(data);
+    const c=await flightdetails.allflightdata(req,res);
+    console.log(c);
+   
+})
+router.post('/add_successful_flight_details',async(req,res)=>{
+    
+    const h=req.body;
+    console.log(h)
+    console.log("Hi")
+    const y=await flightdetails.addflightdetails(req,res);
+    console.log(y);
+})
+
+router.post('/add_crash_details',async(req,res)=>{
+    const p=req.body
+    console.log(p);
+    const t=await flightdetails.addcrashdetails(req,res);
+    console.log(t)
+    
+})
 
 
- 
+
+
+router.post('/insertdamagedparts', async (req, res) => {
+    try {
+      console.log("admin_insert_damagedparts_router");
+      console.log("admin_insert_damaged_parts_router1");
+   
+      const { flightId, selectedItems } = req.body;
+      console.log(req.body);
+      console.log("Flight ID:", flightId);
+      console.log("Flight ID type:", typeof flightId);
+      console.log("Selected Items:", selectedItems);
+      const item= await flightdetails.insertdamageditems(req,res);
+      
+    } catch (err) {
+      console.error('Error', err);
+      
+    }
+  });   
   
 
 module.exports=router;

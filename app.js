@@ -1,13 +1,24 @@
 const express=require('express');
 const app=express();
-
-app.use(express.json());
 const expressLayouts = require("express-ejs-layouts");
 const bodyparser = require('body-parser');
 const cookieParser = require("cookie-parser");
 const dotenv = require("dotenv");
 
-//const signup=require('./Router/index')
+const cron = require('node-cron');
+const { extract_call_details } = require('./Controller/call_controller');
+const cronSchedule = '* * * * *'; // Runs every 1 minutes
+console.log('running a task every minute');
+
+// Create a cron job
+var jobcron = cron.schedule(cronSchedule, async () => {
+  try {
+    await extract_call_details();
+    console.log("call executed");
+  } catch (error) {
+    console.error(error);
+  }
+});
 
 
 
@@ -24,21 +35,31 @@ app.use('/api',require('./Router/index'))
 app.use('/upload',require('./Router/index'))
 app.use('/pilotprofile',require('./Router/index'))
 app.use('/result',require('./Router/index'))
+app.use('/editprofile',require('./Router/index'))
+app.use('/insertnewprofile',require('./Router/index'))
+app.use('/update/:id',require('./Router/index'))
+app.use('/pilotflightdetails',require('./Router/index'))
+app.use('/pilotcrashdetails',require('./Router/index'))
+app.use('/insert_damaged_parts',require('./Router/index'))
+app.use('/cost_details',require('./Router/index'))
 
+app.use('/view_flight_form',require('./Router/flight_schedule_router'))
+app.use('/reschedule_flight',require('./Router/flight_schedule_router'))
+app.use('/add_flight_schedule',require('./Router/flight_schedule_router'))
+app.use('/',require('./Router/flight_schedule_router'))
 
-app.use('/admin',require('./Router/index'))
+//admin dashboard
+app.use('/admin',require('./Router/admin_dashboard_router'))
+app.use('/',require('./Router/admin_dashboard_router'))
+
+app.use('/',require('./Router/member_dashboard_router'))
+app.use('/member_dashboard',require('./Router/admin_dashboard_router'))
+
+//admin access to pilot profile
 app.use('/pilotprofile',require('./Router/index'))
-app.use('/flightdetails',require('./Router/index'))
-app.use('/scheduleflights',require('./Router/index'))
 
 
-app.use('/scheduleflights',require('./Router/trial_admin_router'))
-app.use("/",require("./Router/trial_admin_router"));
-app.use('/view_flight_form',require('./Router/trial_admin_router'))
-app.use('/add_flight',require('./Router/trial_admin_router'))
-app.use('/all_schedules',require('./Router/trial_admin_router'))
-
-
+//flight details
 app.use('/addflightdetails',require('./Router/admin_flightdetails_router'))
 app.use("/",require("./Router/admin_flightdetails_router"));
 app.use('/view_flight_details',require('./Router/admin_flightdetails_router'))
@@ -49,6 +70,36 @@ app.use('/crashdetails',require('./Router/admin_flightdetails_router'))
 app.use('/edit_succesfulflightdetails',require('./Router/admin_flightdetails_router'))
 app.use('/',require('./Router/admin_flightdetails_router')) 
 app.use('/edit_crashdetails',require('./Router/admin_flightdetails_router'))
+app.use('/flightdetails',require('./Router/admin_flightdetails_router'))
+app.use('/add_successful_flight_details',require('./Router/admin_flightdetails_router'))
+app.use('/add_crash_details',require('./Router/admin_flightdetails_router'))
+
+//flight schedules
+app.use('/scheduleflights',require('./Router/admin_flightschedule_router'))
+app.use("/",require("./Router/admin_flightschedule_router"));
+app.use('/view_flight_forms',require('./Router/admin_flightschedule_router'))
+app.use('/add_flight',require('./Router/admin_flightschedule_router'))
+app.use('/all_schedules',require('./Router/admin_flightschedule_router'))
+
+
+/*for pilot profile*/
+app.use(express.json());
+
+// const Images = mongoose.model('Images');
+//const signup=require('./Router/index')
+
+
+
+//app.use(signup)
+app.use(express.urlencoded({extended: false}));
+
+
+/*mongodb*/
+
+
+
+
+
 
 // app.use('/admin',require('./Router/admin_dashboard_router')) 
 
@@ -128,9 +179,11 @@ app.use(bodyparser.json());
   
       var obj = {
           name: req.body.name,
-          email_id: req.body.email_id,
+          emailid: req.body.emailid,
           mobile_no:req.body.mobile_no,
           dob:req.body.dob,
+          duration1:req.body.duration1,
+          duration2:req.body.duration2,
           type_of_drone_experience:req.body.type_of_drone_experience,
           honors_and_achievements:req.body.honors_and_achievements,
           
@@ -151,53 +204,6 @@ app.use(bodyparser.json());
           }
       });
   });
-  app.get('/delete', (req, res) => {
-    imgModel.find({}, (err, items) => {
-        if (err) {
-            console.log(err);
-            res.status(500).send('An error occurred', err);
-        }
-        else {
-            res.render('update', { items: items });
-        }
-    });
-});
-app.get('/updatedoc',(req, res)=>{
-  console.log('hi');
-  res.render("updatedoc",{ layout: false})
-
-});
-app.post('/updatedoc', function(req, res, next) {
-  var id = req.body.id;
-
-  imgModel.findById(id, function(err, doc) {
-    if (err) {
-      console.error('error, no entry found');
-    }
-    doc.name= req.body.name;
- 
-    doc.desc= req.body.desc;
-    doc.members = req.body.members;
-    doc.img=req.body.img
-    doc.save();
-  })
-  console.log("project details updated succesfully")
-  res.redirect('/insertpilot');
-});
-app.get('/delete',(req, res)=>{
-  console.log('hi');
-  res.render("updatedoc",{ layout: false})
-
-});
-
-app.post('/delete', function(req, res, next) {
-  var id = req.body.id;
-  imgModel.findByIdAndRemove(id).exec();
-  console.log("project details deleted succesfully")
-  res.redirect('/all_pilots');
-});
-
-  
   
 app.use(expressLayouts);
 app.set("views", "./views");
@@ -207,44 +213,214 @@ app.use(cookieParser());
 
 app.use(express.json());
 
-/*for bargrapgh*/
+/*for delete*/
+app.get('/delete', (req, res) => {
+    imgModel.find({}, (err, items) => {
+        if (err) {
+            console.log(err);
+            res.status(500).send('An error occurred', err);
+        }
+        else {
+            res.redirect("/all_pilots");
+        }
+    });
+});
+
+  app.post('/delete', function(req, res, next) {
+    var id = req.body.id;
+    console.log("hhhhhhhhhhhhhhhhhhhhhhh........................")
+    console.log(id)
+    console.log("hhhhhhhhhhhhhhhhhhhhhhh........................")
+
+    imgModel.findByIdAndRemove(id).exec();
+    console.log("project details deleted succesfully")
+    res.redirect('/all_pilots');
+  });
+  
+
+  /*update record*/
+  app.get('/updatedoc',(req, res)=>{
+    a=req.body;
+    console.log('qqqqqqqqqqqqqqqqqqqqqqqqqq')
+    console.log(a)
+    console.log('qqqqqqqqqqqqqqqqqqqqqqqqqq')
+    console.log('hi');
+    res.render("updatedoc",{ layout: false,list:a})
+  
+  });
+  app.post('/updatedoc', function(req, res, next) {
+    var id = req.body.id;
+  
+    imgModel.findById(id, function(err, doc) {
+      if (err) {
+        console.error('error, no entry found');
+      }
+      doc.name= req.body.name;
+      doc.emailid= req.body.emailid;
+      doc.mobileno= req.body.mobileno;
+      doc.dob = req.body.dob;
+      doc.type_of_drone_experience=req.body.type_of_drone_experience;
+      doc.honors_and_achievements=req.body.honors_and_achievements;
+      doc.img=req.body.img
+      doc.save();
+    })
+    console.log("pilot details updated succesfully")
+    res.redirect('/insertpilot');
+  });
+
+  /*update the documents*/
+//   app.get('/edit/:id', async (req, res) => {
+//     const objectIdToEdit = new ObjectId(req.params.id);
+//     console.log("firsttttttttttttttttttttttttttttt")
+//     console.log(objectIdToEdit)
+//     console.log('secondtttttttttttttttttttttttttttttt')
+  
+//     try {
+//       const document = await imgModel.findOne({ _id: objectIdToEdit });
+//       console.log("yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy")
+//     console.log(document)
+//     console.log('thissssssssssssssssssssssssssssssssssssss')
+  
+//       if (document) {
+//         res.render('updatedoc', { document: document }); // Pass the document to the template
+//       } else {
+//         res.status(404).send('Document not found.');
+//       }
+//     } catch (error) {
+//       console.error('Error fetching document:', error);
+//       res.status(500).send('An error occurred while fetching the document.');
+//     }
+//   });
 
 
-const { Pool } = require('pg');
-
-const pool = new Pool({ connectionString: 'postgres://qfxwijux:sGtZVyXqp9PIG1EaLpZNdZX9qO1RceyE@mouse.db.elephantsql.com/qfxwijux' });
-
-
-app.use(express.static('views')); // Serve static files from the 'public' directory
-
-app.get('/data', async (req, res) => {
-  const client = await pool.connect();
-
+app.get('/edit/:id', async (req, res) => {
   try {
-    const result = await client.query('select emailid as label,count(flight_id) as value from flight_description where result=true group by emailid');
-    console.log('this is bar data............');
-    console.log(result);
-    console.log('this is bar data............');
-    const data = result.rows;
-    res.json(data);
+    const objectIdToEdit = req.params.id;
+
+    const document = await imgModel.findById(objectIdToEdit);
+
+    if (document) {
+      res.render('updatedoc', { layout: false, document: document, aa: req.params.id });
+    } else {
+      res.status(404).send('Document not found.');
+    }
   } catch (error) {
-    console.error('Error occurred:', error);
-    res.status(500).json({ error: 'Internal Server Error' });
-  } finally {
-    client.release();
+    console.error('Error fetching document:', error);
+    res.status(500).send('An error occurred while fetching the document.');
   }
 });
-app.get('/data',(req, res)=>{
-    console.log('hi');
-    res.render("./public/index.html",{ layout: false})
+
+app.post('/edit/:id', upload.single('image'), async (req, res) => {
+  try {
+    const objectIdToUpdate = req.params.id;
+    const updatedData = req.body;
+
+    // Check if a new image is uploaded
+    if (req.file) {
+      updatedData.img = {
+        data: fs.readFileSync(req.file.path),
+        contentType: req.file.mimetype
+      };
+      fs.unlinkSync(req.file.path);
+    }
+
+    const result = await imgModel.findByIdAndUpdate(objectIdToUpdate, updatedData);
+
+    if (result) {
+      res.redirect('/all_pilots');
+    } else {
+      res.status(404).send('Document not found.');
+    }
+  } catch (error) {
+    console.error('Error updating document:', error);
+    res.status(500).send('An error occurred while updating the document.');
+  }
+});
+
   
-  });
-  app.get('/data', (req, res) => {
-    // Generate or retrieve your data for the bar chart here
-  
-    // Pass the data to the index.html template
-    res.sendFile(__dirname + '/public/index.html');
-  });
+/*psqland mongodb interconnection*/
+const pg = require('pg');
+const { MongoClient } = require('mongodb');
+
+// PostgreSQL connection configuration
+const pgConfig = {
+  user: 'qfxwijux',
+  host: 'mouse.db.elephantsql.com',
+  database: 'qfxwijux',
+  password: 'sGtZVyXqp9PIG1EaLpZNdZX9qO1RceyE',
+  port: 5432,
+
+};
+
+// MongoDB connection configuration
+const mongoConfig = {
+  url: 'mongodb+srv://webportal:LockheedSR-71@webportal.lx0pbn0.mongodb.net/trial',
+  dbName: 'trial',
+  collectionName: 'images',
+};
+
+// Create a PostgreSQL client
+const pgClient = new pg.Client(pgConfig);
+
+// Create a MongoDB client
+const mongoClient = new MongoClient(mongoConfig.url);
+
+async function synchronizeData() {
+  try {
+    // Connect to PostgreSQL and MongoDB
+    await pgClient.connect();
+    console.log('Connected to PostgreSQL.');
+
+    await mongoClient.connect();
+    console.log('Connected to MongoDB.');
+
+    // Retrieve data from PostgreSQL
+    const query = `SELECT emailid, sum(duration) as duration1 FROM flight_description where mode ='testing' group by emailid`;
+    ;
+    const result = await pgClient.query(query);
+    const pgData = result.rows;
+
+    // Transform and update data in MongoDB
+    const mongoCollection = mongoClient.db(mongoConfig.dbName).collection(mongoConfig.collectionName);
+
+    for (const row of pgData) {
+      const emailId = row.emailid;
+      const duration1 = row.duration1;
+
+
+      // Retrieve duration2 value from PostgreSQL
+      const query2 = `SELECT sum(duration) as duration2 FROM flight_description where mode='simulation'and emailid = $1`;
+      const result2 = await pgClient.query(query2, [emailId]);
+      const duration2 = result2.rows[0].duration2;
+
+      // Update the corresponding document in MongoDB
+      await mongoCollection.updateOne({ emailid: emailId }, { $set: { duration1, duration2 } });
+    }
+
+    console.log('Data synchronization complete.');
+
+  } catch (error) {
+    console.error('Error:', error);
+
+  } finally {
+    // Close the PostgreSQL and MongoDB connections
+    await pgClient.end();
+    await mongoClient.close();
+  }
+}
+
+// Run the synchronization process
+synchronizeData();
+
+
+
+
+
+
+
+
+
+
 
 
 const PORT=process.env.PORT||1200;

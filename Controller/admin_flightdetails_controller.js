@@ -1,6 +1,23 @@
 // handles storing new test created 
 const { check } = require("express-validator");
 const pool=require("../database");
+const express=require('express');
+const uuid = require('uuid');
+const jwt=require("jsonwebtoken");
+const app=express();
+
+const bodyParser = require("body-parser");
+const cookieParser = require('cookie-parser')
+const router=express.Router();
+router.use(bodyParser.urlencoded({extended:true}))
+router.use(bodyParser.json())
+router.use(cookieParser())
+
+
+
+const { cookie } = require('express/lib/response');
+const { use } = require('../Router');
+require('dotenv').config();
 
 //get all flight  details  
 
@@ -77,11 +94,15 @@ module.exports.get_succesfulflightdetails = async (req, res) => {
 module.exports.crashdetails = async (req, res) => {
     try {
      console.log("hello welcome..................")
-      var crash_details = await pool.query('select f.flight_id,date,f.emailid,copilot,drone_name,damaged_parts,reason from flight_description f,crash c where f.flight_id=c.flight_id and f.result=false')
-      console.log(crash_details.rows);
+      var crash_details = (await pool.query('SELECT fd.drone_id, d.drone_name,fd.flight_id,fd.mode,fd.date,fd.duration,fd.emailid,fd.result,fd.copilot,c.total_cost,cr.reason FROM flight_description fd JOIN drones d ON fd.drone_id = d.drone_id JOIN crash cr on fd.flight_id=cr.flight_id LEFT JOIN (SELECT SUM(c.items_cost) AS total_cost, f.flight_id FROM cost_details c JOIN flight_crash_items f ON f.items_name = c.items_name GROUP BY f.flight_id ) AS c ON c.flight_id = fd.flight_id WHERE fd.result = false')).rows
+      console.log("this is my new crash check")
+      console.log(crash_details);
       console.log("hello nishmitha..................")
-      console.log(crash_details.rows[0].flight_id+"hellonitte")
-      return crash_details.rows;
+      console.log(crash_details.flight_id+"hellonitte")
+      const items_name=(await pool.query('select items_name from cost_details')).rows;
+      console.log("items_name list");
+      console.log(items_name)
+      return {crash_details, items_name};
     }
     catch (e) {
       console.error(e)
@@ -270,3 +291,146 @@ module.exports.editcrashdetails = async (req, res) => {
     });
 
   }}
+
+
+  /*add flightdetails*/
+  module.exports.alldroneslistdata=async(req,res)=>{
+    
+    if(!req.cookies.authcookie)
+    {
+        return res.status(403).render('login', {message: 'Token Expired'});
+
+    }
+    else {
+        const authcookie=await jwt.verify(req.cookies.authcookie,'sfhsfhsfhfsiofhiosghiogjiogjdoghfioghioghfodiofghdfiogh')
+        console.log(authcookie)
+        if(authcookie.iat - new Date().getTime() < 60000){
+
+    try{
+        const {rows}=await pool.query("SELECT drone_name,drone_id FROM drones");
+        console.log({rows})
+        const {rows:batteries}=await pool.query("SELECT batteryid FROM batterylist");
+        console.log({rows:batteries})
+        const{rows:winddirection}=await pool.query("SELECT winddirection FROM winddirection");
+        console.log({rows:winddirection})
+        console.log("Hi")
+        // const list=rows.map(row=>row.drone_id);
+        const list = rows.map(row => ({ droneName: row.drone_name, droneId: row.drone_id }))
+        console.log(list)
+        const email=req.cookies.email
+        console.log(email);
+        const userId = uuid.v4()
+        res.cookie('autoid',userId);
+        res.render('add_successful_flight_details',{options:list,email:email,userId:userId,batteries:batteries,direction:winddirection})
+       
+          
+    }
+    catch(err){
+        console.log(err)
+    }
+    }
+    else
+    {
+        return res.send({code:404 ,message:'Token Expired'})
+    }
+}
+
+}
+
+
+module.exports.allflightdata=async(req,res)=>{
+  try{
+      const k=await pool.query("select * from flight_description");
+      return k.rows;
+
+  }
+  catch(err){
+      console.log(err)
+  }
+
+}
+
+module.exports.addflightdetails=async(req,res)=>{
+  try{
+      const answer=req.body.answer;
+      console.log(answer)
+      const selectedDroneId=req.body.drone_id;
+      console.log(selectedDroneId)
+      const [drone_name,droneId]=selectedDroneId.split('-');
+      console.log(drone_name,droneId)
+      
+      
+          const query1= await pool.query(`SELECT drone_id FROM drones WHERE drone_name=$1`,[drone_name]);
+          console.log(query1.rows);
+          console.log(query1[2])
+
+      if(answer==='yes'){
+      console.log("let's fly");
+      var{flight_id,emailid,copilot,duration,date,mode,batteryid,takeoffvoltage,landingvoltage,windspeed,winddirection,drone_id,result}=req.body
+      console.log(req.body)
+      var result=true;
+      var y=await pool.query(`INSERT INTO flight_description (flight_id,emailid,copilot,duration,date,mode,batteryid,takeoffvoltage,landingvoltage,windspeed,winddirection,drone_id,result) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13)`,[flight_id,emailid,copilot,duration,date,mode,batteryid,takeoffvoltage,landingvoltage,windspeed,winddirection,drone_id,result]);
+      console.log(y);
+      res.redirect('/all_succesfulflightdetails')
+      }
+      else if(answer==='no'){
+          var{flight_id,emailid,copilot,duration,date,mode,batteryid,takeoffvoltage,landingvoltage,windspeed,winddirection,drone_id,result}=req.body
+          var result=false;
+          var n=await pool.query(`INSERT INTO flight_description (flight_id,emailid,copilot,duration,date,mode,batteryid,takeoffvoltage,landingvoltage,windspeed,winddirection,drone_id,result) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13)`,[flight_id,emailid,copilot,duration,date,mode,batteryid,takeoffvoltage,landingvoltage,windspeed,winddirection,drone_id,result]);
+          console.log("Insertion Successful")
+      console.log(n);
+      const email=req.cookies.email
+      console.log(email);
+      const autoid=req.cookies.autoid
+      console.log(autoid)
+          res.render('add_crash_details',{email:email,autoid:autoid});
+      }
+      else{
+          res.status(400).send("Invalid answer'")
+      }
+  }
+  catch(err){
+      console.log(err)
+  }
+}
+
+module.exports.addcrashdetails=async(req,res)=>{
+  try{
+      console.log("Crash Details Submission");
+      let {drone_name,emailid,pilot_id,flight_id,damaged_parts,reason}=req.body;
+      console.log({
+          drone_name,emailid,pilot_id,flight_id,damaged_parts,reason
+      })
+      pool.query('INSERT INTO crash (drone_name,emailid,flight_id,damaged_parts,reason)values($1,$2,$3,$4,$5)',[drone_name,emailid,flight_id,damaged_parts,reason]);
+      console.log("Submission Successful");
+      res.redirect('/all_succesfulflightdetails');
+  }
+  catch(err){
+      console.log(err)
+  }
+}
+
+module.exports.insertdamageditems = async (req,res) => {
+  try {
+    console.log("Crash item details submission");
+    var { flightId, selectedItems } = req.body;
+    console.log({
+      flightId,
+      selectedItems
+    });
+
+    // Convert single item into an array
+    if (typeof selectedItems === 'string') {
+      selectedItems = [selectedItems];
+    }
+
+    for (var item of selectedItems) {
+      await pool.query('INSERT INTO flight_crash_items (flight_id, items_name) VALUES ($1, $2)', [flightId, item]);
+    }
+
+    console.log("Submission Successful");
+    res.redirect('/crashdetails');
+  } catch (err) {
+    console.log(err);
+  }
+};

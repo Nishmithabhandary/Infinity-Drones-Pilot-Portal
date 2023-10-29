@@ -6,7 +6,16 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Flying</title>
+    <title>Infinity Drones Pilot Portal</title>
+      <script>
+        var link = document.querySelector("link[rel~='icon']");
+        if (!link) {
+          link = document.createElement('link');
+          link.rel = 'icon';
+          document.head.appendChild(link);
+        }
+        link.href = 'https://i.imgur.com/4KBcfHV.png'; 
+      </script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/skeleton/2.0.4/skeleton.css">
     <style>
         body {
@@ -109,7 +118,7 @@
           </div>
           <div>
             <label for="copilot">Copilot:</label>
-            <input type="text" id="copilot" name="copilot" placeholder="Copilot" >
+            <input type="text" id="copilot" name="copilot" placeholder="Copilot" required>
           </div>
 
         <div>
